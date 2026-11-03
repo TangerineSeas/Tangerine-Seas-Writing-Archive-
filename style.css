@@ -713,6 +713,8 @@ body.is-dragging * {
   inset: 0;
   z-index: 3;
   perspective: 1600px;
+  /* 纯装饰层：绝不能挡住下面信纸的滚轮与文字选择 */
+  pointer-events: none;
 }
 
 .hw-panel {
@@ -772,6 +774,12 @@ body.is-dragging * {
 .hw-sheet.is-unfolded .hw-panel--mid {
   opacity: 0;
   transition-delay: .16s;
+}
+
+/* 三折都翻走之后，把封面整体设为不可见（保留过渡时间） */
+.hw-sheet.is-unfolded .hw-fold {
+  visibility: hidden;
+  transition: visibility 0s .15s;
 }
 
 /* ============================ 小册子形态 ============================ */
