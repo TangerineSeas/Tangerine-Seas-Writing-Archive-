@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>档案录入 · Tangerine_Seas's Writing Archive</title>
-  <link rel="stylesheet" href="upload.css?v=20261103d">
-  <link rel="stylesheet" href="preview.css?v=20261103d">
+  <link rel="stylesheet" href="upload.css?v=20261103e">
+  <link rel="stylesheet" href="preview.css?v=20261103e">
 </head>
 <body>
   <!-- 纸张颗粒纹理，纯装饰 -->
@@ -40,6 +40,46 @@
         <button type="button" class="drawer-btn" id="importBtn">导入 works.json</button>
         <input type="file" id="importInput" accept=".json,application/json" class="sr-only">
       </div>
+
+      <!-- GitHub 直连设置 -->
+      <details class="gh-panel" id="ghPanel">
+        <summary>
+          <span class="gh-title">GitHub 直连</span>
+          <span class="gh-state" id="ghState">未连接</span>
+        </summary>
+
+        <p class="gh-tip">
+          连接后，点「正式发布」会直接把作品提交进仓库，不用再下载 zip。
+          令牌只存在这台设备的浏览器里，不会写进代码，也不会上传或公开。
+        </p>
+
+        <label class="gh-field">
+          <span>用户名 / 组织</span>
+          <input type="text" id="ghOwner" autocomplete="off" spellcheck="false" placeholder="TangerineSeas">
+        </label>
+
+        <label class="gh-field">
+          <span>仓库名</span>
+          <input type="text" id="ghRepo" autocomplete="off" spellcheck="false" placeholder="Tangerine-Seas-Writing-Archive-">
+        </label>
+
+        <label class="gh-field">
+          <span>分支</span>
+          <input type="text" id="ghBranch" autocomplete="off" spellcheck="false" placeholder="main">
+        </label>
+
+        <label class="gh-field">
+          <span>访问令牌</span>
+          <input type="password" id="ghToken" autocomplete="off" spellcheck="false" placeholder="github_pat_… 或 ghp_…">
+        </label>
+
+        <div class="gh-actions">
+          <button type="button" class="gh-btn" id="ghConnectBtn">连接</button>
+          <button type="button" class="gh-btn gh-btn--ghost" id="ghDisconnectBtn" hidden>断开</button>
+        </div>
+
+        <p class="gh-hint" id="ghHint"></p>
+      </details>
     </aside>
 
     <!-- ============ 右侧：录入工作台 ============ -->
@@ -146,20 +186,8 @@
 
         <!-- ============ 发布结果 ============ -->
         <section class="publish-result" id="publishResult" hidden aria-labelledby="publishTitle">
-          <h2 id="publishTitle">发布包已生成</h2>
-          <p class="pkg-line">已开始下载：<code id="pkgName"></code></p>
-          <ul class="pkg-files" id="pkgFiles"></ul>
-
-          <ol class="pkg-steps">
-            <li>解压后，把 <code>data/</code> 和 <code>works/</code> 复制到仓库根目录（与 index.html 同级）。</li>
-            <li><code>git add data works</code> → <code>git commit</code> → <code>git push</code></li>
-            <li>等 GitHub Pages 部署完成（通常一两分钟）。</li>
-          </ol>
-
-          <p class="pkg-warn">
-            在你提交并部署之前，作品不会出现在公开网站上。
-            这个工具不会也不能直接写入你的 GitHub 仓库 —— 全程没有任何令牌，也没有自动上传。
-          </p>
+          <h2 id="publishTitle"></h2>
+          <div id="publishBody"></div>
         </section>
 
         <!-- 清洗后的正文：仅用于统计与预览取数，不直接显示 -->
@@ -170,10 +198,11 @@
 
   <!-- Mammoth.js 已下载到本地，部署到 GitHub Pages 时无需依赖外网 CDN -->
   <script src="lib/mammoth.browser.min.js"></script>
-  <script src="preview.js?v=20261103d"></script>
-  <script src="draft-storage.js?v=20261103d"></script>
+  <script src="preview.js?v=20261103e"></script>
+  <script src="draft-storage.js?v=20261103e"></script>
   <script src="lib/jszip.min.js"></script>
-  <script src="publish.js?v=20261103d"></script>
-  <script src="upload.js?v=20261103d"></script>
+  <script src="publish.js?v=20261103e"></script>
+  <script src="github-publish.js?v=20261103e"></script>
+  <script src="upload.js?v=20261103e"></script>
 </body>
 </html>

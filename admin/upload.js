@@ -94,13 +94,25 @@
 
   var publishBtn = $("publishBtn");
   var publishResult = $("publishResult");
-  var pkgName    = $("pkgName");
-  var pkgFiles   = $("pkgFiles");
+  var publishTitle = $("publishTitle");
+  var publishBody  = $("publishBody");
+
+  var ghPanel      = $("ghPanel");
+  var ghState      = $("ghState");
+  var ghOwner      = $("ghOwner");
+  var ghRepo       = $("ghRepo");
+  var ghBranch     = $("ghBranch");
+  var ghToken      = $("ghToken");
+  var ghConnectBtn = $("ghConnectBtn");
+  var ghDisconnectBtn = $("ghDisconnectBtn");
+  var ghHint       = $("ghHint");
 
   /* ------------------------------ 状态 ------------------------------ */
 
   var busy = false;      // 正在读取时禁止重复触发
   var dragDepth = 0;     // 拖拽进入/离开计数，避免子元素导致闪烁
+
+  var ghConfig = null;   // GitHub 连接配置（令牌只在本地保存）
 
   var state = {
     bodyHtml: "",        // 清洗后的正文 HTML
@@ -929,6 +941,11 @@
       if (!ok) return;
     }
 
+    // 连上 GitHub 就直接提交，否则退回下载 zip
+    if (ghConfig) {
+      return publishViaGitHub();
+    }
+
     publishBtn.disabled = true;
     setSaveState("正在打包…");
 
@@ -972,14 +989,7 @@
       window.ArchivePublish.downloadBlob(name, pkg.blob);
 
       // 结果面板
-      pkgName.textContent = name;
-      pkgFiles.replaceChildren.apply(pkgFiles, pkg.files.map(function (f) {
-        var li = document.createElement("li");
-        li.textContent = f;
-        return li;
-      }));
-      publishResult.hidden = false;
-      publishResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      showZipResult(name, pkg.files);
 
       setSaveState("已生成发布包", "ok");
       await refreshDraftList();
@@ -1109,6 +1119,306 @@
     }
   }
 
+  /* ============================ 发布结果面板 ============================ */
+
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function codeEl(text) {
+    var c = document.createElement("code");
+    c.textContent = text;
+    return c;
+  }
+
+  function showPublishResult(title, blocks) {
+    publishTitle.textContent = title;
+    publishBody.replaceChildren.apply(publishBody, blocks);
+    publishResult.hidden = false;
+    publishResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  /** 下载 zip 方式的结果面板 */
+  function showZipResult(name, files) {
+    var line = el("p", "pkg-line");
+    line.appendChild(document.createTextNode("已开始下载："));
+    line.appendChild(codeEl(name));
+
+    var list = el("ul", "pkg-files");
+    files.forEach(function (f) { list.appendChild(el("li", null, f)); });
+
+    var steps = el("ol", "pkg-steps");
+    [
+      "解压后，把 data/ 和 works/ 复制到仓库根目录（与 index.html 同级）。",
+      "git add data works → git commit → git push",
+      "等 GitHub Pages 部署完成（通常一两分钟）。"
+    ].forEach(function (t) { steps.appendChild(el("li", null, t)); });
+
+    var warn = el("p", "pkg-warn",
+      "在你提交并部署之前，作品不会出现在公开网站上。");
+
+    showPublishResult("发布包已生成", [line, list, steps, warn]);
+  }
+
+  /** 直连 GitHub 的结果面板 */
+  function showGitHubResult(cfg, files, repoUrl) {
+    var line = el("p", "pkg-line");
+    line.appendChild(document.createTextNode("已提交到仓库 "));
+    line.appendChild(codeEl(cfg.owner + "/" + cfg.repo));
+    line.appendChild(document.createTextNode("（分支 " + (cfg.branch || "main") + "）。"));
+
+    var list = el("ul", "pkg-files");
+    files.forEach(function (f) { list.appendChild(el("li", null, f)); });
+
+    var link = el("p", "pkg-line");
+    var a = document.createElement("a");
+    a.href = repoUrl;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = "在 GitHub 上查看这次提交";
+    link.appendChild(a);
+
+    var warn = el("p", "pkg-warn",
+      "GitHub Pages 会自动重新部署，通常 1–2 分钟后公开网站就能看到。");
+
+    showPublishResult("已发布到 GitHub", [line, list, link, warn]);
+  }
+
+  /* ============================ GitHub 直连 ============================ */
+
+  function updateGhUI() {
+    var connected = !!ghConfig;
+    ghState.textContent = connected ? "已连接" : "未连接";
+    ghState.className = "gh-state" + (connected ? " gh-state--on" : "");
+    ghDisconnectBtn.hidden = !connected;
+    ghConnectBtn.textContent = connected ? "重新连接" : "连接";
+  }
+
+  /** 把仓库里已有的作品目录合并进来，避免覆盖丢失 */
+  async function mergeRemoteWorks(cfg) {
+    var file = await window.GitHubPublish.readJson(cfg, "data/works.json");
+    if (!file || !file.json || !Array.isArray(file.json.works)) return 0;
+
+    var existing = await window.DraftStore.listWorks();
+    var seen = {};
+    existing.forEach(function (w) { seen[w.number] = true; });
+
+    var added = 0;
+    for (var i = 0; i < file.json.works.length; i++) {
+      var w = file.json.works[i];
+      if (!w || !w.number || seen[w.number]) continue;
+
+      await window.DraftStore.putWork({
+        id: w.id || ("remote-" + w.number),
+        number: w.number,
+        title: w.title || "",
+        date: w.date || "",
+        form: w.form === "book" ? "book" : "letter",
+        chars: w.chars || 0,
+        publishedAt: w.publishedAt || null,
+        updatedAt: w.updatedAt || null,
+        source: "remote"
+      });
+      added++;
+    }
+    return added;
+  }
+
+  async function connectGitHub() {
+    if (!window.GitHubPublish) {
+      ghHint.className = "gh-hint gh-hint--error";
+      ghHint.textContent = "GitHub 模块没有加载成功，请刷新页面。";
+      return;
+    }
+
+    var owner = ghOwner.value.trim();
+    var repo = ghRepo.value.trim();
+    var branch = ghBranch.value.trim() || "main";
+    var token = ghToken.value.trim();
+
+    if (!owner || !repo || !token) {
+      ghHint.className = "gh-hint gh-hint--error";
+      ghHint.textContent = "用户名、仓库名、令牌都要填。";
+      return;
+    }
+
+    ghConnectBtn.disabled = true;
+    ghHint.className = "gh-hint";
+    ghHint.textContent = "正在验证…";
+
+    var cfg = { owner: owner, repo: repo, branch: branch, token: token };
+
+    try {
+      var info = await window.GitHubPublish.testConnection(cfg);
+      cfg.branch = info.branch || branch;
+
+      window.GitHubPublish.saveConfig(cfg);
+      ghConfig = cfg;
+      ghBranch.value = cfg.branch;
+      updateGhUI();
+
+      ghHint.className = "gh-hint gh-hint--ok";
+      ghHint.textContent = "已连接 " + info.repo +
+        (info.login ? "（" + info.login + "）" : "") +
+        " · 分支 " + cfg.branch;
+
+      try {
+        var added = await mergeRemoteWorks(cfg);
+        if (added) {
+          await refreshDraftList();
+          ghHint.textContent += " · 已从仓库合并 " + added + " 篇";
+        }
+      } catch (e) { /* 合并失败不影响连接 */ }
+
+    } catch (err) {
+      ghConfig = null;
+      updateGhUI();
+      ghHint.className = "gh-hint gh-hint--error";
+      ghHint.textContent = (err && err.message) || "连接失败";
+    } finally {
+      ghConnectBtn.disabled = false;
+    }
+  }
+
+  function disconnectGitHub() {
+    if (!window.confirm("断开后，「正式发布」会退回下载 zip 的方式。确定断开吗？")) return;
+    window.GitHubPublish.clearConfig();
+    ghConfig = null;
+    ghToken.value = "";
+    updateGhUI();
+    ghHint.className = "gh-hint";
+    ghHint.textContent = "已断开，令牌已从这台设备删除。";
+  }
+
+  function initGitHub() {
+    if (!window.GitHubPublish) return;
+    var cfg = window.GitHubPublish.loadConfig();
+    if (cfg) {
+      ghOwner.value = cfg.owner;
+      ghRepo.value = cfg.repo;
+      ghBranch.value = cfg.branch || "main";
+      ghToken.value = cfg.token;
+      ghConfig = cfg;
+    }
+    updateGhUI();
+  }
+
+  /**
+   * 直连发布：把正文、原始文档、目录依次提交进仓库。
+   * works.json 最后写，这样目录永远不会指向还不存在的文件。
+   */
+  async function publishViaGitHub() {
+    publishBtn.disabled = true;
+    setSaveState("提交到 GitHub…");
+
+    try {
+      // 1. 先合并远程目录，防止把已发布的作品覆盖掉
+      try {
+        var merged = await mergeRemoteWorks(ghConfig);
+        if (merged) await refreshDraftList();
+      } catch (e) {
+        console.warn("[publish] 合并远程目录失败，继续", e);
+      }
+
+      // 2. 存草稿（状态标记为已发布）
+      var saved = await saveDraft("published");
+      if (!saved) throw new Error("草稿保存失败，已中止发布。");
+
+      // 3. 组装作品记录
+      var now = Date.now();
+      var work = {
+        id: saved.id,
+        number: state.number,
+        title: state.title,
+        date: state.date,
+        form: state.form,
+        chars: (docBody.textContent || "").replace(/\s+/g, "").length,
+        bodyHtml: state.bodyHtml,
+        fileBlob: state.file || null,
+        fileName: state.fileName || "",
+        fileSize: state.fileSize || 0,
+        publishedAt: now,
+        updatedAt: now,
+        source: "local"
+      };
+
+      // 同编号的旧记录要先清掉
+      var previous = await window.DraftStore.listWorks();
+      for (var i = 0; i < previous.length; i++) {
+        if (previous[i].number === work.number && previous[i].id !== work.id) {
+          await window.DraftStore.removeWork(previous[i].id);
+        }
+      }
+      await window.DraftStore.putWork(work);
+
+      var all = await window.DraftStore.listWorks();
+      var catalog = window.ArchivePublish.buildCatalog(all);
+      var seg = window.ArchivePublish.safeSegment(work.number);
+      var msg = "发布：" + (work.title || work.number);
+      var files = [];
+
+      // 4. 正文
+      setSaveState("提交正文…");
+      await window.GitHubPublish.writeFile(
+        ghConfig,
+        "works/" + seg + "/content.html",
+        window.GitHubPublish.toBase64(window.ArchivePublish.renderContentHtml(work)),
+        msg
+      );
+      files.push("works/" + seg + "/content.html");
+
+      // 5. 原始文档
+      if (work.fileBlob) {
+        setSaveState("提交原始文档…");
+        var docx64 = await window.DraftStore.blobToBase64(work.fileBlob);
+        await window.GitHubPublish.writeFile(
+          ghConfig,
+          "works/" + seg + "/original.docx",
+          docx64,
+          msg
+        );
+        files.push("works/" + seg + "/original.docx");
+      }
+
+      // 6. 目录最后写
+      setSaveState("更新目录…");
+      await window.GitHubPublish.writeFile(
+        ghConfig,
+        "data/works.json",
+        window.GitHubPublish.toBase64(JSON.stringify(catalog, null, 2) + "\n"),
+        msg + "：更新目录"
+      );
+      files.push("data/works.json");
+
+      // 7. 完成
+      setSaveState("已推送到 GitHub", "ok");
+      await refreshDraftList();
+
+      showGitHubResult(
+        ghConfig,
+        files,
+        "https://github.com/" + ghConfig.owner + "/" + ghConfig.repo
+      );
+
+      hideNotice();
+      if (!work.fileBlob) {
+        showNotice("warn", "原始 DOCX 缺失，本次只提交了正文。重新上传原文再发布可以补上。");
+      }
+
+    } catch (err) {
+      console.error("[publish] 提交到 GitHub 失败：", err);
+      setSaveState("发布失败", "dirty");
+      showNotice("error",
+        "提交到 GitHub 失败：\n" + ((err && err.message) || "未知错误") +
+        "\n\n作品没有发布成功。可以修好后再点一次「正式发布」。");
+    } finally {
+      publishBtn.disabled = false;
+    }
+  }
+
   /* ============================ 事件绑定 ============================ */
 
   // 点击上传区 → 打开文件选择框
@@ -1173,6 +1483,8 @@
   saveBtn.addEventListener("click", function () { saveDraft("draft"); });
   exportAllBtn.addEventListener("click", exportAll);
   publishBtn.addEventListener("click", publishWork);
+  ghConnectBtn.addEventListener("click", connectGitHub);
+  ghDisconnectBtn.addEventListener("click", disconnectGitHub);
 
   importBtn.addEventListener("click", function () { importInput.click(); });
   importInput.addEventListener("change", function () {
@@ -1270,6 +1582,8 @@
       reportStorageProblem(new Error("这个浏览器不支持 IndexedDB。"));
       return;
     }
+
+    initGitHub();
 
     refreshDraftList()
       .then(tryHydrateCatalog)

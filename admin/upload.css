@@ -927,3 +927,122 @@ h1 {
     flex-wrap: wrap;
   }
 }
+
+/* ============================ GitHub 直连（第六阶段） ============================ */
+
+.gh-panel {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid #dcccaa;
+}
+
+.gh-panel summary {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.gh-panel summary::-webkit-details-marker { display: none; }
+
+.gh-panel summary::before {
+  content: "▸";
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.gh-panel[open] summary::before { content: "▾"; }
+
+.gh-title {
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: var(--ink-2);
+}
+
+.gh-state {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+}
+
+.gh-state--on { color: var(--forest); }
+
+.gh-tip {
+  margin: 10px 0 12px;
+  font-size: 10px;
+  line-height: 1.75;
+  color: var(--ink-3);
+}
+
+.gh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.gh-field > span {
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.gh-field input {
+  width: 100%;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+  background: #fdf9ef;
+  border: 1px solid var(--edge);
+  border-radius: 0;
+}
+
+.gh-field input:focus {
+  outline: none;
+  border-color: var(--brass);
+  box-shadow: 0 0 0 2px #b08d5726;
+}
+
+.gh-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.gh-btn {
+  flex: 1;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: #fdf6e8;
+  background: var(--forest);
+  border: 1px solid #24312a;
+  cursor: pointer;
+  transition: background .18s ease;
+}
+
+.gh-btn:hover:not(:disabled) { background: #3a4f41; }
+.gh-btn:disabled { opacity: .5; cursor: default; }
+
+.gh-btn--ghost {
+  color: var(--ink-2);
+  background: none;
+  border-color: #cbb894;
+}
+
+.gh-btn--ghost:hover { background: #f6eeda; color: var(--ink); }
+
+.gh-hint {
+  margin: 10px 0 0;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+
+.gh-hint--ok { color: var(--forest); }
+.gh-hint--error { color: #6d2622; }
