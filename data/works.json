@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-03T15:08:30.135Z",
+  "generatedAt": "2026-11-03T15:16:46.085Z",
   "drawerSize": 10,
-  "count": 1,
+  "count": 2,
   "works": [
     {
       "id": "d7a4dda8-4c3b-4f09-b144-e73631270305",
@@ -15,6 +15,18 @@
       "sourceFile": "works/TS-20261103-01/original.docx",
       "publishedAt": 1793718510132,
       "updatedAt": 1793718510132
+    },
+    {
+      "id": "6f9cb5a3-91eb-48cb-a9b1-7c96ebd59760",
+      "number": "TS-20261103-02",
+      "title": "GGAD二十六字母梗",
+      "date": "2026-11-03",
+      "form": "book",
+      "chars": 1962,
+      "contentFile": "works/TS-20261103-02/content.html",
+      "sourceFile": "works/TS-20261103-02/original.docx",
+      "publishedAt": 1793719006080,
+      "updatedAt": 1793719006080
     }
   ]
 }
