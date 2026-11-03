@@ -1,0 +1,459 @@
+/* ==========================================================================
+   admin/preview.css
+   第二阶段：阅读预览样式
+     · letter —— 三折信纸，展开后可下滑阅读
+     · book   —— 小册子，分页 + 翻页
+   沿用档案室配色：羊皮纸 / 墨水棕 / 森林绿 / 暗红 / 古铜金
+   ========================================================================== */
+
+/* ============================ 信纸 ============================ */
+
+.letter-reader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.letter-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 68vh, 640px);
+  perspective: 1800px;
+}
+
+.letter-sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fffaf0;
+  border: 1px solid #e6d7ba;
+  box-shadow:
+    inset 0 0 70px #d9c8a83d,
+    0 16px 34px -20px #6b5430a6;
+  overflow: hidden;
+}
+
+/* ---- 信头 ---- */
+
+.letter-head {
+  flex: none;
+  padding: 26px 34px 14px;
+  border-bottom: 1px solid #eadcc2;
+  background: linear-gradient(180deg, #fffdf7, #fffaf0);
+}
+
+.letter-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: #a38a6b;
+  text-transform: uppercase;
+}
+
+.letter-no { color: var(--brass, #b08d57); }
+
+.letter-title {
+  margin: 0;
+  font-size: clamp(19px, 2.4vw, 26px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.35;
+  color: #3d2c1d;
+}
+
+/* ---- 正文滚动区 ---- */
+
+.letter-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 24px 34px 40px;
+  overflow: hidden;              /* 折叠状态下锁住滚动 */
+  outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: #cdb894 transparent;
+}
+
+.is-open .letter-scroll { overflow-y: auto; }
+
+.letter-scroll:focus-visible {
+  box-shadow: inset 0 0 0 2px #b08d5766;
+}
+
+.letter-body {
+  font-size: 15px;
+  line-height: 1.95;
+}
+
+.letter-end {
+  margin: 34px 0 0;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .4em;
+  color: #b9a184;
+}
+
+/* ---- 三折封面 ---- */
+
+.fold-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  outline: none;
+}
+
+.fold-cover:focus-visible {
+  box-shadow: inset 0 0 0 2px #b08d57;
+}
+
+.fold-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 33.3333%;
+  background:
+    linear-gradient(180deg, #fffdf7 0%, #f8efdd 100%);
+  backface-visibility: hidden;
+  transition:
+    transform .78s cubic-bezier(.36,.05,.22,1),
+    opacity .5s ease;
+}
+
+/* 折痕：每条折页边缘留一道阴影 */
+.fold-panel--top {
+  top: 0;
+  transform-origin: 50% 100%;
+  box-shadow: 0 2px 4px -2px #b39a7440;
+}
+
+.fold-panel--mid {
+  top: 33.3333%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background:
+    linear-gradient(180deg, #f9f1e0 0%, #f6ecd8 50%, #f9f1e0 100%);
+  box-shadow:
+    0 -2px 4px -2px #b39a7440,
+    0 2px 4px -2px #b39a7440;
+}
+
+.fold-panel--bot {
+  top: 66.6666%;
+  transform-origin: 50% 0%;
+  box-shadow: 0 -2px 4px -2px #b39a7440;
+}
+
+/* 封缄标签 */
+.fold-seal {
+  padding: 7px 18px;
+  font-size: 9px;
+  letter-spacing: .34em;
+  color: #fdf6e8;
+  background: var(--brass, #b08d57);
+  border-radius: 2px;
+}
+
+.fold-hint {
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: #a38a6b;
+}
+
+/* 展开：上折向上翻走、下折向下翻走、中间淡出 */
+.is-open .fold-panel--top {
+  transform: rotateX(-118deg);
+  opacity: 0;
+}
+
+.is-open .fold-panel--bot {
+  transform: rotateX(118deg);
+  opacity: 0;
+}
+
+.is-open .fold-panel--mid {
+  opacity: 0;
+  transition-delay: .16s;
+}
+
+.is-open .fold-cover {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ---- 下滑提示 ---- */
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 4;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: #8b7459;
+  background: #fffaf0e6;
+  border: 1px solid #e6d7ba;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+
+.is-open .scroll-hint { opacity: 1; }
+.scroll-hint.is-gone { opacity: 0; }
+
+/* ---- 操作条 ---- */
+
+.reader-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.reader-btn,
+.book-btn {
+  padding: 9px 22px;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: #fdf6e8;
+  background: var(--forest, #2f4034);
+  border: 1px solid #24312a;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.reader-btn:hover,
+.book-btn:hover:not(:disabled) { background: #3a4f41; }
+
+.reader-btn:focus-visible,
+.book-btn:focus-visible {
+  outline: 2px solid var(--brass, #b08d57);
+  outline-offset: 3px;
+}
+
+/* ============================ 小册子 ============================ */
+
+.book {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.book-spread {
+  position: relative;
+  display: flex;
+  width: calc(var(--page-w) * 2);
+  height: var(--page-h);
+  perspective: 3600px;
+  background: #e8d9bd;
+  box-shadow:
+    0 20px 40px -26px #4c392ba6,
+    0 0 0 1px #cdb894;
+}
+
+.book--single .book-spread {
+  width: var(--page-w);
+}
+
+.book-page {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #fffaf0;
+  cursor: pointer;
+}
+
+/* 书脊阴影 */
+.book-page--left { box-shadow: inset -18px 0 24px -22px #6b543080; }
+.book-page--right { box-shadow: inset 18px 0 24px -22px #6b543080; }
+
+.book--single .book-page--left { display: none; }
+
+.book-page-inner {
+  display: flow-root;
+  height: 100%;
+  overflow: hidden;
+}
+
+.book-page-inner.is-overflow { overflow-y: auto; }
+
+/* ---- 翻页的纸叶 ---- */
+
+.book-leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 5;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  transition:
+    transform .76s cubic-bezier(.36,.05,.22,1),
+    opacity .55s ease;
+}
+
+.book--single .book-leaf {
+  left: 0;
+  width: 100%;
+}
+
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  display: flow-root;
+  overflow: hidden;
+  background: #fffaf0;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 40px #d9c8a82e;
+}
+
+.leaf-face--back {
+  transform: rotateY(180deg);
+}
+
+/* 翻页时纸面明暗，增强立体感 */
+.leaf-face--front::after,
+.leaf-face--back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, #6b543020, transparent 22%, transparent 78%, #6b54301a);
+}
+
+/* ---- 翻页控制 ---- */
+
+.book-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.book-btn {
+  background: transparent;
+  color: var(--ink-2, #6d5741);
+  border: 1px solid #cbb894;
+}
+
+.book-btn:hover:not(:disabled) {
+  background: #f2e8d4;
+  color: var(--ink, #43301f);
+}
+
+.book-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.book-count {
+  min-width: 88px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--ink-3, #8b7459);
+}
+
+/* ---- 分页测量容器（不可见） ---- */
+
+.book-measure {
+  position: absolute;
+  left: -99999px;
+  top: 0;
+  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.page-flow {
+  display: flow-root;
+}
+
+/* ============================ 小册子正文排版 ============================ */
+
+.book-body {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a3728;
+  word-break: break-word;
+}
+
+.book-body p { margin: 0 0 .85em; }
+
+.book-body h1 { font-size: 20px; }
+.book-body h2 { font-size: 17px; }
+.book-body h3 { font-size: 15px; }
+.book-body h4,
+.book-body h5,
+.book-body h6 { font-size: 13.5px; }
+
+.book-body h1,
+.book-body h2,
+.book-body h3,
+.book-body h4,
+.book-body h5,
+.book-body h6 {
+  margin: 1.1em 0 .5em;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.35;
+  color: #3d2c1d;
+}
+
+.book-body ul,
+.book-body ol {
+  margin: 0 0 .85em;
+  padding-left: 1.4em;
+}
+
+.book-body blockquote {
+  margin: .9em 0;
+  padding-left: 1em;
+  border-left: 2px solid #d9c6a4;
+  font-style: italic;
+  color: var(--ink-2, #6d5741);
+}
+
+.book-body img {
+  max-width: 100%;
+  height: auto;
+  margin: .8em auto;
+  padding: 4px;
+  background: #fffdf7;
+  border: 1px solid #e2d3b6;
+}
+
+.book-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.book-body th,
+.book-body td {
+  padding: 5px 7px;
+  border: 1px solid #ddccae;
+  text-align: left;
+}
+
+/* ============================ 窄屏 ============================ */
+
+@media (max-width: 700px) {
+  .letter-head { padding: 20px 20px 12px; }
+  .letter-scroll { padding: 18px 20px 34px; }
+  .letter-body { font-size: 14px; }
+  .letter-stage { height: clamp(340px, 62vh, 560px); }
+}

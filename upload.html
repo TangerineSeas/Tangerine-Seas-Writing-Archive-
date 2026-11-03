@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>档案录入 · Tangerine_Seas's Writing Archive</title>
+  <link rel="stylesheet" href="upload.css?v=20261103b">
+  <link rel="stylesheet" href="preview.css?v=20261103b">
+</head>
+<body>
+  <!-- 纸张颗粒纹理，纯装饰 -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="back" href="../index.html">← 档案柜</a>
+    <span class="brand">Tangerine_Seas&rsquo;s Writing Archive</span>
+    <span class="mark">INTAKE</span>
+  </header>
+
+  <main class="intake">
+
+    <!-- ============ 左侧：草稿抽屉 ============ -->
+    <aside class="drawer" aria-labelledby="drawerTitle">
+      <div class="drawer-head">
+        <h2 id="drawerTitle">草稿抽屉</h2>
+        <span class="drawer-count" id="drawerCount"></span>
+      </div>
+
+      <p class="drawer-note">仅保存在这台设备的浏览器里，不会同步到云端。</p>
+
+      <div class="drawer-notice" id="drawerNotice" hidden></div>
+
+      <ul class="draft-list" id="draftList"></ul>
+
+      <p class="drawer-empty" id="drawerEmpty">抽屉还是空的。<br>读取一份文稿后可以存为草稿。</p>
+
+      <div class="drawer-actions">
+        <button type="button" class="drawer-btn" id="exportAllBtn" disabled>导出全部备份</button>
+        <button type="button" class="drawer-btn" id="importBtn">导入 works.json</button>
+        <input type="file" id="importInput" accept=".json,application/json" class="sr-only">
+      </div>
+    </aside>
+
+    <!-- ============ 右侧：录入工作台 ============ -->
+    <section class="folder" aria-labelledby="pageTitle">
+      <div class="folder-tab">第 五 阶 段 · 发 布 打 包</div>
+
+      <div class="folder-body">
+        <h1 id="pageTitle">投递一份文稿</h1>
+        <p class="lede">
+          上传 <code>.docx</code> 文件，系统会在你的浏览器里读取正文，
+          保留段落、标题层级、粗体、斜体、列表与换行。
+        </p>
+
+        <!-- ============ 上传区：点击选择 + 拖拽 ============ -->
+        <div class="dropzone" id="dropzone" role="button" tabindex="0"
+             aria-label="选择或拖入 DOCX 文件">
+          <input type="file" id="fileInput" accept=".docx" class="sr-only">
+
+          <svg class="dz-icon" viewBox="0 0 48 60" aria-hidden="true"
+               fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2h24l12 12v44H6z"></path>
+            <path d="M30 2v12h12"></path>
+            <path d="M14 26h20M14 34h20M14 42h12"></path>
+          </svg>
+
+          <p class="dz-title">把 DOCX 拖到这里</p>
+          <p class="dz-hint">或 <span class="dz-link">点击选择文件</span></p>
+          <p class="dz-note">仅 .docx · 不支持旧版 .doc · 上限 20 MB</p>
+        </div>
+
+        <!-- ============ 文件信息卡 ============ -->
+        <div class="file-card" id="fileCard" hidden>
+          <span class="file-icon" aria-hidden="true">DOCX</span>
+          <div class="file-meta">
+            <p class="file-name" id="fileName"></p>
+            <p class="file-sub" id="fileSub"></p>
+          </div>
+          <span class="status" id="statusBadge"></span>
+          <button type="button" class="ghost" id="clearBtn">移除</button>
+        </div>
+
+        <!-- ============ 提示 / 报错 ============ -->
+        <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+        <!-- ============ 档案信息 ============ -->
+        <section class="meta-panel" id="metaPanel" hidden aria-labelledby="metaTitle">
+          <div class="panel-head">
+            <h2 id="metaTitle">档案信息</h2>
+            <div class="panel-actions">
+              <span class="save-state" id="saveState"></span>
+              <button type="button" class="btn-save" id="saveBtn">保存草稿</button>
+              <button type="button" class="btn-publish" id="publishBtn">正式发布</button>
+            </div>
+          </div>
+
+          <div class="fields">
+            <label class="field field--full">
+              <span class="field-label">作品标题</span>
+              <input type="text" id="titleInput" maxlength="120"
+                     placeholder="自动从正文提取，可修改">
+            </label>
+
+            <label class="field">
+              <span class="field-label">档案编号</span>
+              <input type="text" id="numberInput" maxlength="40">
+            </label>
+
+            <label class="field">
+              <span class="field-label">日期</span>
+              <input type="date" id="dateInput">
+            </label>
+          </div>
+
+          <div class="form-choice">
+            <span class="field-label" id="formLabel">阅读形式</span>
+            <div class="choice-row" role="radiogroup" aria-labelledby="formLabel">
+              <button type="button" class="choice" data-form="letter" aria-pressed="true">
+                <span class="choice-name">letter</span>
+                <span class="choice-desc">信纸 · 三折展开，下滑阅读</span>
+              </button>
+              <button type="button" class="choice" data-form="book" aria-pressed="false">
+                <span class="choice-name">book</span>
+                <span class="choice-desc">小册子 · 分页，逐页翻阅</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ 阅读预览 ============ -->
+        <section class="preview" id="preview" hidden aria-labelledby="previewTitle">
+          <div class="result-head">
+            <h2 id="previewTitle">阅读预览</h2>
+            <ul class="stats" id="stats"></ul>
+          </div>
+
+          <div class="preview-mount" id="previewMount"></div>
+
+          <p class="footnote">
+            这是浏览器内的即时预览。点击「保存草稿」后才会存入本地草稿抽屉，
+            仍未发布到公开档案柜。
+          </p>
+        </section>
+
+        <!-- ============ 发布结果 ============ -->
+        <section class="publish-result" id="publishResult" hidden aria-labelledby="publishTitle">
+          <h2 id="publishTitle">发布包已生成</h2>
+          <p class="pkg-line">已开始下载：<code id="pkgName"></code></p>
+          <ul class="pkg-files" id="pkgFiles"></ul>
+
+          <ol class="pkg-steps">
+            <li>解压后，把 <code>data/</code> 和 <code>works/</code> 复制到仓库根目录（与 index.html 同级）。</li>
+            <li><code>git add data works</code> → <code>git commit</code> → <code>git push</code></li>
+            <li>等 GitHub Pages 部署完成（通常一两分钟）。</li>
+          </ol>
+
+          <p class="pkg-warn">
+            在你提交并部署之前，作品不会出现在公开网站上。
+            这个工具不会也不能直接写入你的 GitHub 仓库 —— 全程没有任何令牌，也没有自动上传。
+          </p>
+        </section>
+
+        <!-- 清洗后的正文：仅用于统计与预览取数，不直接显示 -->
+        <div id="docBody" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Mammoth.js 已下载到本地，部署到 GitHub Pages 时无需依赖外网 CDN -->
+  <script src="lib/mammoth.browser.min.js"></script>
+  <script src="preview.js?v=20261103b"></script>
+  <script src="draft-storage.js?v=20261103b"></script>
+  <script src="lib/jszip.min.js"></script>
+  <script src="publish.js?v=20261103b"></script>
+  <script src="upload.js?v=20261103b"></script>
+</body>
+</html>

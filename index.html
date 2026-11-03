@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Tangerine_Seas's Writing Archive</title>
+  <link rel="stylesheet" href="style.css?v=20261103b">
+  <!-- 小册子阅读器沿用 admin 里已经做好的书页组件（只共享样式，不共享编辑器逻辑） -->
+  <link rel="stylesheet" href="admin/preview.css?v=20261103b">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="archive">
+    <header class="archive-head">
+      <p class="archive-kicker">PRIVATE ARCHIVE</p>
+      <h1>Tangerine_Seas&rsquo;s Writing Archive</h1>
+      <p class="archive-note">每一封信里都是一篇作品。<br>拉开抽屉，取出你想读的那一封。</p>
+    </header>
+
+    <!-- ============ 档案柜 ============ -->
+    <section class="cabinet" aria-labelledby="cabinetTitle">
+      <h2 id="cabinetTitle" class="sr-only">作品档案柜</h2>
+      <div class="cabinet-top" aria-hidden="true"></div>
+      <div class="cabinet-body" id="cabinetBody">
+        <!-- 抽屉由 script.js 生成 -->
+      </div>
+      <div class="cabinet-base" aria-hidden="true"></div>
+    </section>
+
+    <p class="archive-status" id="archiveStatus" aria-live="polite">正在打开档案柜…</p>
+
+    <noscript>
+      <p class="archive-status is-error">这个档案柜需要 JavaScript 才能打开，请在浏览器里启用后再访问。</p>
+    </noscript>
+
+    <footer class="archive-foot">
+      <a href="admin/upload.html">档案录入</a>
+      <span id="archiveCount"></span>
+    </footer>
+  </main>
+
+  <!-- ============ 阅读层 ============ -->
+  <div class="reader" id="reader" role="dialog" aria-modal="true" aria-label="阅读作品" hidden>
+    <div class="reader-scrim" data-close="1"></div>
+
+    <div class="reader-inner">
+      <div class="reader-stage" id="readerStage">
+
+        <!-- ---- 信纸形态 ---- -->
+        <section class="letter-scene" id="letterScene">
+          <div class="envelope-back"></div>
+
+          <article class="hw-sheet" id="hwSheet">
+            <header class="hw-head">
+              <div class="hw-meta">
+                <span class="hw-no" id="hwNo"></span>
+                <span class="hw-date" id="hwDate"></span>
+              </div>
+              <h2 class="hw-title" id="hwTitle"></h2>
+            </header>
+            <div class="hw-scroll" id="hwScroll" tabindex="0">
+              <div class="hw-body" id="hwBody"></div>
+              <p class="hw-end">— 完 —</p>
+            </div>
+          <div class="hw-fold" id="hwFold" aria-hidden="true">
+            <div class="hw-panel hw-panel--top"></div>
+            <div class="hw-panel hw-panel--mid">
+              <span class="hw-seal">OPEN WITH CARE</span>
+            </div>
+            <div class="hw-panel hw-panel--bot"></div>
+          </div>
+          </article>
+
+          <div class="envelope-front" id="envelopeFront">
+            <div class="envelope-flap"></div>
+
+            <div class="stamp" aria-hidden="true">
+              <span>POST</span>
+              <strong>✿</strong>
+              <small id="stampYear">1986</small>
+            </div>
+
+            <div class="address">
+              <span>ARCHIVE No.</span>
+              <strong id="envNumber">—</strong>
+              <strong class="env-title" id="envTitle">—</strong>
+            </div>
+
+            <div class="envelope-decoration">PRIVATE · PERSONAL · UNOPENED</div>
+          </div>
+
+          <div class="tear-strip" id="tearStrip"></div>
+
+        </section>
+
+        <!-- ---- 小册子形态 ---- -->
+        <section class="book-scene" id="bookScene" hidden>
+          <p class="book-caption" id="bookCaption"></p>
+          <div id="bookMount"></div>
+        </section>
+      </div>
+
+      <div class="reader-bar">
+        <span class="reader-hint" id="readerHint">拖动封条，拆开这封信</span>
+        <button type="button" class="reader-close" id="readerClose">关闭 · 放回抽屉</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin/preview.js?v=20261103b"></script>
+  <script src="script.js?v=20261103b"></script>
+</body>
+</html>
