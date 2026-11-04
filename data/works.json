@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-04T01:05:54.000Z",
+  "generatedAt": "2026-11-04T01:07:37.678Z",
   "drawerSize": 10,
-  "count": 4,
+  "count": 5,
   "works": [
     {
       "id": "d7a4dda8-4c3b-4f09-b144-e73631270305",
       "number": "TS-20261103-01",
       "title": "520CP贺文",
       "date": "2026-11-03",
-      "form": "letter",
+      "form": "book",
       "chars": 10048,
       "contentFile": "works/TS-20261103-01/content.html",
       "sourceFile": "works/TS-20261103-01/original.docx",
-      "publishedAt": 1793718510132,
-      "updatedAt": 1793718510132
+      "publishedAt": 1793753352870,
+      "updatedAt": 1793753352870
     },
     {
       "id": "6f9cb5a3-91eb-48cb-a9b1-7c96ebd59760",
@@ -51,6 +51,18 @@
       "sourceFile": "works/TS-20261104-01/original.docx",
       "publishedAt": 1793753311062,
       "updatedAt": 1793753311062
+    },
+    {
+      "id": "3acdd3c8-7d28-44b6-9374-fd6f965239a0",
+      "number": "TS-20261104-02",
+      "title": "GGAD夫夫相性100问",
+      "date": "2026-11-04",
+      "form": "letter",
+      "chars": 8213,
+      "contentFile": "works/TS-20261104-02/content.html",
+      "sourceFile": "works/TS-20261104-02/original.docx",
+      "publishedAt": 1793754457673,
+      "updatedAt": 1793754457673
     }
   ]
 }
