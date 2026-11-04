@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-04T00:55:48.635Z",
+  "generatedAt": "2026-11-04T01:05:54.000Z",
   "drawerSize": 10,
-  "count": 3,
+  "count": 4,
   "works": [
     {
       "id": "d7a4dda8-4c3b-4f09-b144-e73631270305",
@@ -27,6 +27,18 @@
       "sourceFile": "works/TS-20261103-02/original.docx",
       "publishedAt": 1793719006080,
       "updatedAt": 1793719006080
+    },
+    {
+      "id": "b14ce30b-2fb9-4ad6-9528-8a0a68bd809a",
+      "number": "TS-20261103-03",
+      "title": "GGAD夫夫相性100问",
+      "date": "2026-11-03",
+      "form": "letter",
+      "chars": 8213,
+      "contentFile": "works/TS-20261103-03/content.html",
+      "sourceFile": "works/TS-20261103-03/original.docx",
+      "publishedAt": 1793715275815,
+      "updatedAt": 1793715275815
     },
     {
       "id": "835978d7-6cce-4f98-9eb1-5bb84a1e171b",
