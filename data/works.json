@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-04T00:48:31.066Z",
+  "generatedAt": "2026-11-03T15:16:46.085Z",
   "drawerSize": 10,
-  "count": 3,
+  "count": 2,
   "works": [
     {
       "id": "d7a4dda8-4c3b-4f09-b144-e73631270305",
@@ -27,18 +27,6 @@
       "sourceFile": "works/TS-20261103-02/original.docx",
       "publishedAt": 1793719006080,
       "updatedAt": 1793719006080
-    },
-    {
-      "id": "835978d7-6cce-4f98-9eb1-5bb84a1e171b",
-      "number": "TS-20261104-01",
-      "title": "我们跳舞到天明",
-      "date": "2026-11-04",
-      "form": "book",
-      "chars": 9735,
-      "contentFile": "works/TS-20261104-01/content.html",
-      "sourceFile": "works/TS-20261104-01/original.docx",
-      "publishedAt": 1793753311062,
-      "updatedAt": 1793753311062
     }
   ]
 }
